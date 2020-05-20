@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useHttp } from "./hooks/useHTTP";
 import { Question } from "./components/Question";
 import { Navbar } from "./components/Navbar";
 import { Loading } from "./components/Loading";
 const key = "udydrloa7v16d3bo5dmmvutycbxaht4021wxrfu09nrhzmhcd";
 
-const urlRandomWords = `https://api.wordnik.com/v4/words.json/randomWords?hasDictionaryDef=true&maxCorpusCount=-1&minDictionaryCount=1&maxDictionaryCount=1&minLength=5&maxLength=10&limit=4&api_key=${key}`;
+const urlRandomWords = `https://api.wordnik.com/v4/words.json/randomWords?hasDictionaryDef=true&maxCorpusCount=-1&minDictionaryCount=1&maxDictionaryCount=10&minLength=3&maxLength=10&limit=4&api_key=${key}`;
 const urlWordDict = (word) =>
   `https://api.wordnik.com/v4/word.json/${word}/definitions?limit=1&includeRelated=false&useCanonical=false&includeTags=false&api_key=${key}`;
 
@@ -19,6 +19,9 @@ function App() {
   const [right_answers_count, setRight_answers_count] = useState(0);
   const [tries_count, setTries_count] = useState(0);
 
+  // useMemo(() => , input)
+  const num = useRef(0);
+  num.current = randomNum;
   useEffect(() => {
     (async () => {
       let data = await request(urlRandomWords, "GET");
@@ -31,11 +34,14 @@ function App() {
     (async () => {
       console.log("2 called");
       if (word_list.length) {
-        let res = await request(urlWordDict(word_list[randomNum].word), "GET");
+        let res = await request(
+          urlWordDict(word_list[num.current].word),
+          "GET"
+        );
         setDef(res[0].text);
       }
     })();
-  }, [request, word_list, randomNum]);
+  }, [request, word_list]);
 
   const click_handler = (bool) => {
     setTries_count(tries_count + 1);
